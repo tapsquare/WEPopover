@@ -72,7 +72,7 @@
  * @brief The current arrow direction for the popover.
  */
 @property (nonatomic, readonly) UIPopoverArrowDirection arrowDirection;
-
+@property (nonatomic, assign) UIPopoverArrowDirection permittedArrowDirections;
 /**
  * @brief The content view being displayed.
  */
@@ -95,4 +95,7 @@ permittedArrowDirections:(UIPopoverArrowDirection)permittedArrowDirections
 						 displayArea:(CGRect)displayArea
 			permittedArrowDirections:(UIPopoverArrowDirection)permittedArrowDirections;	
 
+- (void)updateSize:(CGSize)theSize 
+      anchorRect:(CGRect)anchorRect 
+     displayArea:(CGRect)displayArea;	
 @end

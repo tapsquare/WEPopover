@@ -37,14 +37,14 @@
 @implementation WEPopoverContainerView
 
 @synthesize arrowDirection, contentView;
-
+@synthesize permittedArrowDirections = _permittedArrowDirections;
 - (id)initWithSize:(CGSize)theSize 
 		anchorRect:(CGRect)anchorRect 
 	   displayArea:(CGRect)displayArea
 permittedArrowDirections:(UIPopoverArrowDirection)permittedArrowDirections
 		properties:(WEPopoverContainerViewProperties *)theProperties {
 	if ((self = [super initWithFrame:CGRectZero])) {
-		
+		self.permittedArrowDirections = permittedArrowDirections;
 		[self setProperties:theProperties];
 		correctedSize = CGSizeMake(theSize.width + properties.leftBgMargin + properties.rightBgMargin + properties.leftContentMargin + properties.rightContentMargin, 
 								   theSize.height + properties.topBgMargin + properties.bottomBgMargin + properties.topContentMargin + properties.bottomContentMargin);	
@@ -79,6 +79,23 @@ permittedArrowDirections:(UIPopoverArrowDirection)permittedArrowDirections
 	[self determineGeometryForSize:correctedSize anchorRect:anchorRect displayArea:displayArea permittedArrowDirections:permittedArrowDirections];
 	[self initFrame];
 }
+- (void)updateSize:(CGSize)theSize 
+		anchorRect:(CGRect)anchorRect 
+	   displayArea:(CGRect)displayArea {
+		
+		correctedSize = CGSizeMake(theSize.width + properties.leftBgMargin + properties.rightBgMargin + properties.leftContentMargin + properties.rightContentMargin, 
+								   theSize.height + properties.topBgMargin + properties.bottomBgMargin + properties.topContentMargin + properties.bottomContentMargin);	
+		[self determineGeometryForSize:correctedSize anchorRect:anchorRect displayArea:displayArea permittedArrowDirections:self.permittedArrowDirections];
+		[self initFrame];
+		self.backgroundColor = [UIColor clearColor];
+		UIImage *theImage = [UIImage imageNamed:properties.bgImageName];
+		bgImage = [[theImage stretchableImageWithLeftCapWidth:properties.leftBgCapSize topCapHeight:properties.topBgCapSize] retain];
+		
+		self.clipsToBounds = YES;
+		self.userInteractionEnabled = YES;
+    [self setNeedsDisplay];
+}
+
 
 - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
 	return CGRectContainsPoint(self.contentRect, point);	

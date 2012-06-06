@@ -35,7 +35,8 @@
 @synthesize containerViewProperties;
 @synthesize context;
 @synthesize passthroughViews;
-
+@synthesize anchorRect = _anchorRect;
+@synthesize displayArea = _displayArea;
 - (id)init {
 	if ((self = [super init])) {
 	}
@@ -82,6 +83,10 @@
 		self.view.userInteractionEnabled = YES;
 		popoverVisible = YES;
 		[contentViewController viewDidAppear:YES];
+    } else if ([animationID isEqual:@"Resize"]) {
+        self.view.userInteractionEnabled = YES;
+		popoverVisible = YES;
+		[contentViewController viewDidLayoutSubviews];
 	} else {
 		popoverVisible = NO;
 		[contentViewController viewDidDisappear:YES];
@@ -120,20 +125,20 @@
 	  permittedArrowDirections:(UIPopoverArrowDirection)arrowDirections 
 					  animated:(BOOL)animated {
 	
-	
+	self.anchorRect = rect;
 	[self dismissPopoverAnimated:NO];
 	
 	//First force a load view for the contentViewController so the popoverContentSize is properly initialized
-	contentViewController.view;
+	[contentViewController view];
 	
 	if (CGSizeEqualToSize(popoverContentSize, CGSizeZero)) {
 		popoverContentSize = contentViewController.contentSizeForViewInPopover;
 	}
 	
-	CGRect displayArea = [self displayAreaForView:theView];
+	self.displayArea = [self displayAreaForView:theView];
 	
 	WEPopoverContainerViewProperties *props = self.containerViewProperties ? self.containerViewProperties : [self defaultContainerViewProperties];
-	WEPopoverContainerView *containerView = [[[WEPopoverContainerView alloc] initWithSize:self.popoverContentSize anchorRect:rect displayArea:displayArea permittedArrowDirections:arrowDirections properties:props] autorelease];
+	WEPopoverContainerView *containerView = [[[WEPopoverContainerView alloc] initWithSize:self.popoverContentSize anchorRect:rect displayArea:self.displayArea permittedArrowDirections:arrowDirections properties:props] autorelease];
 	popoverArrowDirection = containerView.arrowDirection;
 	
 	UIView *keyView = self.keyView;
@@ -196,6 +201,33 @@
 	
 	popoverArrowDirection = containerView.arrowDirection;
 	containerView.frame = [theView convertRect:containerView.frame toView:backgroundView];
+}
+
+-(void)setPopoverContentSize:(CGSize)size animated:(BOOL)animated {
+    self.popoverContentSize = size;
+    
+	WEPopoverContainerView *containerView = (WEPopoverContainerView *)self.view;
+    if (animated) {
+        [UIView animateWithDuration:FADE_DURATION delay:0.f options:UIViewAnimationCurveEaseIn animations:^{
+            [containerView updateSize:self.popoverContentSize anchorRect:self.anchorRect displayArea:self.displayArea];
+        }
+                         completion:^(BOOL finished){
+                             
+                         }];
+        [UIView beginAnimations:@"Resize" context:nil];
+        [UIView setAnimationDelegate:self];
+        [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
+        [UIView setAnimationDuration:FADE_DURATION];
+        
+        [UIView commitAnimations];
+        // todo set the new size rects
+        
+    } else {
+        // todo set the new size rect now
+        [containerView updateSize:self.popoverContentSize anchorRect:self.anchorRect displayArea:self.displayArea];
+        
+    }
+    
 }
 
 #pragma mark -

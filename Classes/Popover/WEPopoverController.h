@@ -46,7 +46,8 @@
 @property (nonatomic, retain) WEPopoverContainerViewProperties *containerViewProperties;
 @property (nonatomic, retain) id <NSObject> context;
 @property (nonatomic, copy) NSArray *passthroughViews;
-
+@property (nonatomic, assign) CGRect anchorRect;
+@property (nonatomic, assign) CGRect displayArea;
 - (id)initWithContentViewController:(UIViewController *)theContentViewController;
 
 - (void)dismissPopoverAnimated:(BOOL)animated;
@@ -64,4 +65,6 @@
 						   inView:(UIView *)view
 		 permittedArrowDirections:(UIPopoverArrowDirection)arrowDirections;
 
+- (void)setPopoverContentSize:(CGSize)size 
+                     animated:(BOOL)animated;
 @end
